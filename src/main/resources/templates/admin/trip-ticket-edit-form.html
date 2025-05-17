@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать Рейс и Билет</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <!-- Ваш собственный CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4">Редактировать Рейс и Билет</h1>
+
+    <!-- Сообщения об ошибке/успехе (если перенаправляем с ошибкой) -->
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+    <!-- Форма для редактирования -->
+    <!-- Отправляем данные на новый POST эндпоинт -->
+    <form method="post" th:action="@{/admin/update-combined}" th:object="${editData}"> <!-- Связываем форму с TripTicketEditDto, которое в модели под именем "editData" -->
+
+        <!-- Скрытые поля для ID рейса и билета (необходимы для обновления) -->
+        <input type="hidden" th:field="*{tripId}" />
+        <input type="hidden" th:field="*{ticketId}" /> <!-- Может быть null или 0 -->
+
+
+        <h3>Данные Рейса</h3>
+        <div class="mb-3">
+            <label for="trainNumber" class="form-label">Номер поезда</label>
+            <input type="text" class="form-control" id="trainNumber" th:field="*{trainNumber}" required>
+        </div>
+        <div class="mb-3">
+            <label for="departureStation" class="form-label">Станция отправления</label>
+            <input type="text" class="form-control" id="departureStation" th:field="*{departureStation}" required>
+        </div>
+        <div class="mb-3">
+            <label for="arrivalStation" class="form-label">Станция прибытия</label>
+            <input type="text" class="form-control" id="arrivalStation" th:field="*{arrivalStation}" required>
+        </div>
+        <div class="mb-3">
+            <label for="departureTime" class="form-label">Время отправления (HH:mm)</label>
+            <input type="text" class="form-control" id="departureTime" th:field="*{departureTime}" placeholder="Например, 10:30" pattern="^([01]\d|2[0-3]):([0-5]\d)$" title="Введите время в формате HH:mm" required>
+        </div>
+        <div class="mb-3">
+            <label for="arrivalTime" class="form-label">Время прибытия (HH:mm)</label>
+            <input type="text" class="form-control" id="arrivalTime" th:field="*{arrivalTime}" placeholder="Например, 14:00" pattern="^([01]\d|2[0-3]):([0-5]\d)$" title="Введите время в формате HH:mm" required>
+        </div>
+
+        <hr/>
+
+        <!-- Секция данных Билета - показывается только если в DTO есть ticketId -->
+        <div th:if="${editData.hasTicket()}"> <!-- Используем метод hasTicket() из DTO -->
+            <h3>Данные Билета</h3>
+            <p class="text-muted">ID Билета: <span th:text="${editData.ticketId}">Ticket ID</span></p>
+            <div class="mb-3">
+                <label for="passengerName" class="form-label">Имя Пассажира</label>
+                <input type="text" class="form-control" id="passengerName" th:field="*{passengerName}" required>
+            </div>
+            <div class="mb-3">
+                <label for="seatNumber" class="form-label">Номер Места</label>
+                <input type="text" class="form-control" id="seatNumber" th:field="*{seatNumber}" required>
+            </div>
+            <!-- Опционально: отображение даты покупки, если она есть в DTO -->
+            <!-- <div th:if="${editData.purchaseDate != null}" class="mb-3">
+                 <label class="form-label">Дата покупки</label>
+                 <input type="text" class="form-control" th:value="${#temporals.format(editData.purchaseDate, 'dd-MM-yyyy HH:mm')}" readonly>
+            </div> -->
+        </div>
+
+        <!-- Если в DTO нет ticketId, показываем сообщение -->
+        <div th:unless="${editData.hasTicket()}">
+            <h3 class="text-info">Нет данных билета для этой строки</h3>
+            <p class="text-muted">В этой строке отображается только рейс. Для этого рейса пока не куплено билетов, или строка не привязана к конкретному билету.</p>
+            <!-- Опционально: Кнопка "Добавить Билет"? Требует отдельной логики. -->
+        </div>
+
+
+        <button type="submit" class="btn btn-primary mt-3">Сохранить Изменения</button>
+        <a th:href="@{/admin}" class="btn btn-secondary mt-3">Отмена</a>
+    </form>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!-- src/main/resources/templates/admin/fragments/tripTable.html -->
+
+<div th:fragment="tripSection">
+
+  <h2 class="mt-4 mb-3">Информация о Рейсах и Билетах</h2>
+
+  <!-- Кнопка Добавить Рельс -->
+  <a th:href="@{/admin/trips/add}" class="btn btn-primary mb-3">Добавить Новый Рейс</a>
+
+  <table class="table table-striped table-bordered table-hover">
+    <thead class="table-dark">
+    <tr>
+      <th>ID Рейса</th>
+      <th>Номер поезда</th>
+      <th>Станция отправления</th>
+      <th>Станция прибытия</th>
+      <th>Время отправления</th>
+      <th>Время прибытия</th>
+      <th>Имя Пассажира</th>
+      <th>Номер Места</th>
+      <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="tripData : ${tripsData}">
+      <td th:text="${tripData.tripId}">1</td>
+      <td th:text="${tripData.trainNumber}">101</td>
+      <td th:text="${tripData.departureStation}">Москва</td>
+      <td th:text="${tripData.arrivalStation}">Санкт-Петербург</td>
+      <td th:text="${tripData.departureTime}">10:00</td>
+      <td th:text="${tripData.arrivalTime}">14:00</td>
+      <td th:text="${tripData.passengerName}">Пассажир ФИО</td>
+      <td th:text="${tripData.seatNumber}">1A</td>
+      <td>
+        <!-- Кнопка Редактировать Рейс и Билет -->
+        <a th:href="@{/admin/edit/{tripId}/{ticketId}(tripId=${tripData.tripId}, ticketId=${tripData.ticketId != null ? tripData.ticketId : 0})}"
+           class="btn btn-sm btn-warning">Редактировать</a>
+
+        <!-- Форма для кнопки "Удалить" с корректным th:action -->
+        <!-- Используем th:with для вычисления URL -->
+        <form method="post"
+              th:with="deleteUrl=${(tripData.ticketId != null) ? '/admin/tickets/delete/' + tripData.ticketId : '/admin/trips/delete/' + tripData.tripId}"
+              th:action="@{${deleteUrl}}"
+              style="display:inline;">
+
+          <!-- === ИЗМЕНЕНО: Убрали th:onclick, добавили data-confirm-message и класс === -->
+          <button type="submit"
+                  class="btn btn-sm btn-danger confirm-delete-btn"
+                  th:text="${tripData.ticketId != null} ? 'Удалить Билет' : 'Удалить Рейс'"
+                  th:attr="data-confirm-message=${tripData.ticketId != null ? 'Вы уверены, что хотите удалить этот билет?' : 'Внимание: Удаление рейса приведет к удалению всех связанных билетов. Вы уверены?'}"
+          >Удалить</button>
+          <!-- ======================================================================= -->
+        </form>
+      </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(tripsData)}">
+      <td colspan="9" class="text-center">Данных о рейсах и билетах пока нет.</td>
+    </tr>
+    </tbody>
+  </table>
+  <div th:if="${#lists.isEmpty(tripsData)}" class="alert alert-info text-center">
+    Данных о рейсах и билетах пока нет.
+  </div>
+</div>
+
+<!-- === ДОБАВЛЕНО: Небольшой JavaScript для обработки подтверждения удаления === -->
+<!-- Этот скрипт должен быть включен на странице, где используется этот фрагмент (например, в admin.html) -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Находим все кнопки с классом 'confirm-delete-btn'
+    document.querySelectorAll('.confirm-delete-btn').forEach(button => {
+      // Добавляем обработчик события клика
+      button.addEventListener('click', function(event) {
+        // Получаем сообщение подтверждения из data-атрибута
+        const message = this.getAttribute('data-confirm-message');
+
+        // Если пользователь нажимает "Отмена" в диалоге confirm
+        if (!confirm(message)) {
+          // Предотвращаем стандартное действие отправки формы
+          event.preventDefault();
+        }
+        // Если пользователь нажимает "ОК", форма будет отправлена стандартным образом
+      });
+    });
+  });
+</script>
+<!-- =========================================================================== -->

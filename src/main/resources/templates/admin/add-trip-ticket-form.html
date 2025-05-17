@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <!-- Изменяем Title -->
+  <title>Добавить Рейс и Билет</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+  <!-- Ваш собственный CSS -->
+  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="container mt-4">
+  <!-- Изменяем Заголовок -->
+  <h1 class="mb-4">Добавить Новый Рейс и Первый Билет</h1>
+
+  <!-- Сообщения об ошибке/успехе (если перенаправляем с ошибкой) -->
+  <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+  <!-- Форма для добавления Рейса и Билета -->
+  <!-- th:action указывает на POST эндпоинт для добавления -->
+  <!-- th:object связываем форму с TripTicketEditDto, которое будет в модели под именем "formData" -->
+  <form method="post" th:action="@{/admin/trips/add}" th:object="${formData}">
+
+    <!-- Не нужно скрытое поле ID рейса при добавлении -->
+    <!-- <input type="hidden" th:field="*{tripId}" /> -->
+
+    <h3>Данные Рейса</h3>
+    <div class="mb-3">
+      <label for="trainNumber" class="form-label">Номер поезда</label>
+      <input type="text" class="form-control" id="trainNumber" th:field="*{trainNumber}" required>
+    </div>
+    <div class="mb-3">
+      <label for="departureStation" class="form-label">Станция отправления</label>
+      <input type="text" class="form-control" id="departureStation" th:field="*{departureStation}" required>
+    </div>
+    <div class="mb-3">
+      <label for="arrivalStation" class="form-label">Станция прибытия</label>
+      <input type="text" class="form-control" id="arrivalStation" th:field="*{arrivalStation}" required>
+    </div>
+    <div class="mb-3">
+      <label for="departureTime" class="form-label">Время отправления (HH:mm)</label>
+      <input type="text" class="form-control" id="departureTime" th:field="*{departureTime}" placeholder="Например, 10:30" pattern="^([01]\d|2[0-3]):([0-5]\d)$" title="Введите время в формате HH:mm" required>
+    </div>
+    <div class="mb-3">
+      <label for="arrivalTime" class="form-label">Время прибытия (HH:mm)</label>
+      <input type="text" class="form-control" id="arrivalTime" th:field="*{arrivalTime}" placeholder="Например, 14:00" pattern="^([01]\d|2[0-3]):([0-5]\d)$" title="Введите время в формате HH:mm" required>
+    </div>
+
+    <hr/>
+
+    <h3>Данные билета</h3>
+    
+    <div class="mb-3">
+      <label for="passengerName" class="form-label">Имя Пассажира</label>
+      <!-- Поле необязательное -->
+      <input type="text" class="form-control" id="passengerName" th:field="*{passengerName}">
+    </div>
+    <div class="mb-3">
+      <label for="seatNumber" class="form-label">Номер Места</label>
+      <!-- Поле необязательное -->
+      <input type="text" class="form-control" id="seatNumber" th:field="*{seatNumber}">
+    </div>
+    <!-- purchaseDate устанавливается автоматически в момент создания -->
+
+    <button type="submit" class="btn btn-primary mt-3">Добавить Рейс (и Билет)</button>
+    <a th:href="@{/admin}" class="btn btn-secondary mt-3">Отмена</a>
+  </form>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

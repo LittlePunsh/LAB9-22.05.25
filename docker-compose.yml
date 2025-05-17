@@ -1,0 +1,48 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+
+  # Сервис для базы данных пользователей
+  users-db:
+    image: mysql:8.0
+    container_name: users_db_container
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: users
+    volumes:
+      - users_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  # Сервис для базы данных железнодорожных данных
+  railway-db:
+    image: mysql:8.0
+    container_name: railway_db_container
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: railway_station
+    volumes:
+      - railway_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  app:
+    build: .
+    container_name: railway_app_container
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    depends_on:
+      - users-db
+      - railway-db
+    # restart: on-failure # Перезапускать, если контейнер завершился с ненулевым кодом выхода
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  users_data:
+  railway_data:

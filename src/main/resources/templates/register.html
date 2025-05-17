@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <!-- Ваш собственный CSS -->
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+    <style>
+        /* Дополнительные стили для центрирования формы на странице */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f8f9fa; /* Цвет фона */
+        }
+        .form-container {
+            max-width: 400px; /* Ограничиваем ширину формы */
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container card shadow"> <!-- Bootstrap card with shadow -->
+    <h2 class="card-header text-center">Регистрация</h2> <!-- Bootstrap card-header, text-center -->
+    <div class="card-body"> <!-- Bootstrap card-body -->
+
+        <!-- Сообщения об ошибке/успехе -->
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
+
+
+        <form th:action="@{/register}" method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label">Имя пользователя</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Введите имя пользователя" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Пароль</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="mail" placeholder="Введите email" required> <!-- name="mail" соответствует @RequestParam String mail в AuthController -->
+            </div>
+            <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
+        </form>
+
+        <hr>
+
+        <div style="text-align: center; margin-top: 15px;">
+            Уже есть аккаунт? <a th:href="@{/login}" class="link">Войти!</a>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
