@@ -44,7 +44,6 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        // Создаем нового пользователя (роль по умолчанию - "user", deleted = false по умолчанию)
         User newUser = new User(username, encodedPassword, email, "user");
 
         userRepository.save(newUser);

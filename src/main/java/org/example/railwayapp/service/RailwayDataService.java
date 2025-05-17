@@ -3,7 +3,7 @@ package org.example.railwayapp.service;
 import org.example.railwayapp.dto.AdminTripDto;
 import org.example.railwayapp.model.railway.Ticket;
 import org.example.railwayapp.model.railway.Trip;
-import org.example.railwayapp.repository.railway.TicketRepository; // Импорт TicketRepository
+import org.example.railwayapp.repository.railway.TicketRepository;
 import org.example.railwayapp.repository.railway.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class RailwayDataService {
     private TripRepository tripRepository;
 
     @Autowired
-    private TicketRepository ticketRepository; // Внедряем TicketRepository
+    private TicketRepository ticketRepository;
 
     @Transactional(value = "railwayTransactionManager", readOnly = true)
     public List<Trip> getAllTripsOrdered() {
@@ -41,7 +41,7 @@ public class RailwayDataService {
                 .collect(Collectors.toList());
     }
 
-    // --- Методы для CRUD рейсов ---
+    // --- Методы длярейсов ---
     @Transactional(value = "railwayTransactionManager", readOnly = true)
     public Optional<Trip> findTripById(Integer tripId) {
         return tripRepository.findById(tripId);
@@ -57,8 +57,6 @@ public class RailwayDataService {
         tripRepository.deleteById(tripId);
     }
 
-    // === ДОБАВЛЕНО: Методы для CRUD билетов ===
-
     // Найти билет по ID
     @Transactional(value = "railwayTransactionManager", readOnly = true)
     public Optional<Ticket> findTicketById(Long ticketId) {
@@ -68,19 +66,13 @@ public class RailwayDataService {
     // Сохранить или обновить билет
     @Transactional("railwayTransactionManager")
     public Ticket saveTicket(Ticket ticket) {
-        // При обновлении билета важно убедиться, что связь с рейсом (Trip) сохраняется.
-        // Если в форме редактирования билета нет поля для выбора рейса,
-        // нужно найти существующий билет перед сохранением, чтобы не потерять Trip.
-        // Это делается в контроллере (AdminController.updateTicket).
         return ticketRepository.save(ticket);
     }
 
-    // Удалить билет по ID (физическое удаление)
+    // Удалить билет по ID
     @Transactional("railwayTransactionManager")
     public void deleteTicketById(Long ticketId) {
         ticketRepository.deleteById(ticketId);
     }
-
-    // === Конец ДОБАВЛЕННЫХ методов для билетов ===
 
 }

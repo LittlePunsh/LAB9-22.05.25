@@ -101,7 +101,6 @@ public class AdminController {
                 newTicket.setSeatNumber(formData.getSeatNumber().trim());
                 newTicket.setPurchaseDate(LocalDateTime.now());
 
-                // Сохраняем новый билет
                 railwayDataService.saveTicket(newTicket);
 
                 redirectAttributes.addFlashAttribute("successMessage", "Рейс и билет успешно добавлены.");
@@ -182,10 +181,8 @@ public class AdminController {
             editData.setSeatNumber("---");
         }
 
-        // 4. Передаем заполненный DTO в модель для связывания с формой
         model.addAttribute("editData", editData);
 
-        // 5. Возвращаем имя шаблона формы редактирования
         return "admin/trip-ticket-edit-form";
     }
 
@@ -211,7 +208,6 @@ public class AdminController {
             tripToUpdate.setDepartureTime(editData.getDepartureTime());
             tripToUpdate.setArrivalTime(editData.getArrivalTime());
 
-            // Сохраняем обновленный рейс
             railwayDataService.saveTrip(tripToUpdate);
 
             // 2. Если в DTO присутствует ID билета
@@ -226,9 +222,7 @@ public class AdminController {
                 // Обновляем поля билета
                 ticketToUpdate.setPassengerName(editData.getPassengerName());
                 ticketToUpdate.setSeatNumber(editData.getSeatNumber());
-                // purchaseDate и связь с Trip НЕ меняются через эту форму
 
-                // Сохраняем обновленный билет
                 railwayDataService.saveTicket(ticketToUpdate);
             }
             redirectAttributes.addFlashAttribute("successMessage", "Данные успешно обновлены.");
@@ -256,158 +250,120 @@ public class AdminController {
 
     // --- Методы для CRUD Пользователей ---
 
-    // Показать форму добавления нового пользователя (обрабатывает GET запрос на /admin/users/add)
+    // GET запрос на /admin/users/add
     @GetMapping("/users/add")
     public String addUserForm(Model model) {
-        // Передаем пустой объект User для связывания с формой
         model.addAttribute("user", new User());
-        // Сообщения об ошибке/успехе могут быть переданы flash attributes
-        return "admin/user-form"; // Возвращаем имя шаблона формы пользователя
+        return "admin/user-form";
     }
 
-    // Обработать сохранение нового пользователя (админом) (обрабатывает POST запрос на /admin/users)
-    // Принимает User объект для полей username, email, role И @RequestParam String password для сырого пароля из формы.
+
     @PostMapping("/users")
-    public String saveUser(@ModelAttribute User user, // Связывает поля username, email, role
-                           @RequestParam String password, // Получает сырой пароль из поля name="password"
+    public String saveUser(@ModelAttribute User user,
+                           @RequestParam String password,
                            RedirectAttributes redirectAttributes) {
 
-        // При добавлении ID пользователя должен быть null. Если он почему-то есть, это некорректный запрос.
         if (user.getId() != null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Некорректные данные для создания пользователя (присутствует ID).");
-            // Возвращаемся на главную админку или форму добавления с ошибкой
             return "redirect:/admin";
         }
-        // Проверяем, что пароль не пустой при добавлении нового пользователя
         if (password == null || password.trim().isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Пароль обязателен для нового пользователя.");
-            // Возвращаемся на форму добавления с ошибкой
             return "redirect:/admin/users/add";
         }
 
         try {
 
-            userService.registerUser(user.getUsername(), password, user.getEmail()); // registerUser ставит роль "user"
+            userService.registerUser(user.getUsername(), password, user.getEmail());
 
             redirectAttributes.addFlashAttribute("successMessage", "Пользователь " + user.getUsername() + " успешно добавлен.");
 
         } catch (Exception e) {
-            // В случае ошибки (например, уникальность), добавляем сообщение об ошибке
             redirectAttributes.addFlashAttribute("errorMessage", "Ошибка добавления пользователя: " + e.getMessage());
-            // Возвращаемся на форму добавления с ошибкой (и, возможно, с введенными данными)
-            // redirectAttributes.addFlashAttribute("user", user); // Сохраняем введенные данные
             return "redirect:/admin/users/add";
         }
-        // Перенаправляем обратно на главную страницу админа после успешного добавления
         return "redirect:/admin";
     }
 
 
-    // Показать форму редактирования пользователя (для админа) (обрабатывает GET запрос на /admin/users/edit/{id})
-    // Админ может редактировать любого пользователя по ID, включая удаленных.
+    //GET запрос на /admin/users/edit/{id})
     @GetMapping("/users/edit/{id}")
     public String editUserForm(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
-        // Используем findUserById, который ищет пользователя независимо от флага deleted
         Optional<User> userOptional = userService.findUserById(id);
 
-        // Если пользователь не найден, перенаправляем с ошибкой
         if (userOptional.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Пользователь не найден.");
             return "redirect:/admin";
         }
 
-        // Передаем объект User в модель для связывания с формой
         model.addAttribute("user", userOptional.get());
-        // ВАЖНО: Пароль НЕ передается в модель и НЕ отображается в форме редактирования (см. user-form.html)
-        return "admin/user-form"; // Возвращаем имя шаблона формы пользователя
+        return "admin/user-form";
     }
 
-    // Обработать сохранение обновленного пользователя (админом) (обрабатывает POST запрос на /admin/users/update)
-    // Принимает User объект из формы. Пароль и флаг deleted через эту форму не меняются.
+    //POST запрос на /admin/users/update
     @PostMapping("/users/update")
-    public String updateUser(@ModelAttribute User user, // Связывает поля username, email, role из формы
+    public String updateUser(@ModelAttribute User user,
                              RedirectAttributes redirectAttributes) {
 
-        // При обновлении ID пользователя ОБЯЗАТЕЛЕН
         if (user.getId() == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Некорректные данные для обновления пользователя (отсутствует ID).");
             return "redirect:/admin";
         }
 
         try {
-            // Находим существующего пользователя в базе, чтобы получить его текущий пароль и флаг deleted
             Optional<User> existingUserOptional = userService.findUserById(user.getId());
-            // Если существующий пользователь не найден (удален кем-то другим?), перенаправляем с ошибкой
             if (existingUserOptional.isEmpty()) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Пользователь для обновления не найден (ID: " + user.getId() + ").");
-                // Возможно, стоит вернуться на форму редактирования этого же DTO с ошибкой
                 return "redirect:/admin";
             }
-            User existingUser = existingUserOptional.get(); // Получаем сущность
-
-            // Обновляем ТОЛЬКО те поля, которые разрешено менять через эту форму (username, email, role)
-            existingUser.setUsername(user.getUsername()); // Можно добавить проверку уникальности при смене username/email
+            User existingUser = existingUserOptional.get();
+            existingUser.setUsername(user.getUsername());
             existingUser.setEmail(user.getEmail());
-            existingUser.setRole(user.getRole()); // Админ может менять роль
+            existingUser.setRole(user.getRole());
 
+            userService.saveUser(existingUser);
 
-
-            // Сохраняем обновленные данные пользователя
-            userService.saveUser(existingUser); // save метод JPA обновит существующую запись по ID
-
-            // Добавляем сообщение об успехе
             redirectAttributes.addFlashAttribute("successMessage", "Данные пользователя " + existingUser.getUsername() + " успешно обновлены.");
 
         } catch (Exception e) {
-            // В случае ошибки обновления, добавляем сообщение об ошибке
             redirectAttributes.addFlashAttribute("errorMessage", "Ошибка обновления пользователя: " + e.getMessage());
 
         }
-        // Перенаправляем обратно на главную страницу админа после успешного обновления
         return "redirect:/admin";
     }
 
 
-    // Обработать мягкое удаление пользователя (обрабатывает POST запрос на /admin/users/delete/{id})
+    //POST запрос на /admin/users/delete/{id})
     @PostMapping("/users/delete/{id}")
     public String softDeleteUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        // Получаем информацию о текущем залогиненном пользователе для проверки
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
-        Optional<User> currentUserOptional = userService.findByUsername(currentUsername); // Ищем текущего пользователя (только не удаленного)
+        Optional<User> currentUserOptional = userService.findByUsername(currentUsername);
 
-        // Проверяем, пытается ли админ удалить самого себя.
-        // Проверяем, что текущий пользователь существует и его ID совпадает с ID пользователя, которого пытаются удалить.
         if(currentUserOptional.isPresent() && currentUserOptional.get().getId().equals(id)) {
             redirectAttributes.addFlashAttribute("errorMessage", "Вы не можете удалить самого себя.");
-            return "redirect:/admin"; // Перенаправляем обратно с ошибкой
+            return "redirect:/admin";
         }
 
         try {
-            // Вызываем сервис для мягкого удаления пользователя
             userService.softDeleteUser(id);
             redirectAttributes.addFlashAttribute("successMessage", "Пользователь успешно отмечен как удаленный.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Ошибка удаления пользователя: " + e.getMessage());
         }
-        // Перенаправляем обратно на главную страницу админа
         return "redirect:/admin";
     }
 
-    // Обработать восстановление пользователя (обрабатывает POST запрос на /admin/users/restore/{id})
-    // Этот метод вызывается из формы на user-form.html, если пользователь был удален
+    // POST запрос на /admin/users/restore/{id}
     @PostMapping("/users/restore/{id}")
     public String restoreUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         try {
-            // Вызываем сервис для восстановления пользователя
             userService.restoreUser(id);
             redirectAttributes.addFlashAttribute("successMessage", "Пользователь успешно восстановлен.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Ошибка восстановления пользователя: " + e.getMessage());
         }
-        // Перенаправляем обратно на главную страницу админа
         return "redirect:/admin";
     }
 
-    // --- Конец Методов для CRUD Пользователей ---
 }

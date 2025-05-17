@@ -1,12 +1,9 @@
-<!-- src/main/resources/templates/admin.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Панель администратора</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
-    <!-- Ваш собственный CSS -->
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
 </head>
 <body>
@@ -18,35 +15,24 @@
         (<span th:text="${loggedInUser.role}">admin</span>)
     </p>
 
-    <!-- Форма для выхода -->
     <form th:action="@{/logout}" method="post" class="mb-4">
         <button type="submit" class="btn btn-danger">Выйти</button>
     </form>
 
-    <!-- Сообщения об ошибке/успехе -->
     <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
     <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
 
-
-    <!-- === Включаем фрагмент с таблицей рейсов === -->
     <div th:replace="admin/fragments/tripTable :: tripSection">
-        <!-- Этот текст/разметка внутри div будет заменен содержимым фрагмента -->
         Загрузка таблицы рейсов...
     </div>
-    <!-- ========================================= -->
 
-
-    <!-- === Включаем фрагмент с таблицей пользователей === -->
     <div th:replace="admin/fragments/userTable :: userSection">
-        <!-- Этот текст/разметка внутри div будет заменен содержимым фрагмента -->
         Загрузка таблицы пользователей...
     </div>
-    <!-- ============================================ -->
 
 
 </div>
 
-<!-- Bootstrap JS -->
 <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

@@ -3,31 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Вход</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
-    <!-- Ваш собственный CSS -->
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
     <style>
-        /* Дополнительные стили для центрирования формы на странице */
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #f8f9fa; /* Цвет фона */
+            background-color: #f8f9fa;
         }
         .form-container {
-            max-width: 400px; /* Ограничиваем ширину формы */
+            max-width: 400px;
             padding: 20px;
         }
     </style>
 </head>
 <body>
-<div class="form-container card shadow"> <!-- Bootstrap card with shadow -->
-    <h2 class="card-header text-center">Вход</h2> <!-- Bootstrap card-header, text-center -->
-    <div class="card-body"> <!-- Bootstrap card-body -->
+<div class="form-container card shadow">
+    <h2 class="card-header text-center">Вход</h2>
+    <div class="card-body">
 
-        <!-- Сообщения об ошибке/успехе -->
         <div th:if="${param.error}" class="alert alert-danger" role="alert">
             Неверные имя пользователя или пароль.
         </div>
@@ -36,32 +32,30 @@
             Вы успешно вышли из системы.
         </div>
 
-        <!-- Сообщения, переданные через RedirectAttributes -->
         <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
         <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
 
 
         <form th:action="@{/login}" method="post">
-            <div class="mb-3"> <!-- Bootstrap margin-bottom -->
-                <label for="username" class="form-label">Имя пользователя</label> <!-- Bootstrap form-label -->
-                <input type="text" class="form-control" id="username" name="username" placeholder="Введите имя пользователя" required> <!-- Bootstrap form-control -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Имя пользователя</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Введите имя пользователя" required>
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Пароль</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Войти</button> <!-- Bootstrap btn, w-100 = width 100% -->
+            <button type="submit" class="btn btn-primary w-100">Войти</button>
         </form>
 
-        <hr> <!-- Bootstrap horizontal rule -->
+        <hr>
 
-        <div class="text-center"> <!-- Bootstrap text-center -->
+        <div class="text-center">
             Нет аккаунта? <a th:href="@{/register}" class="link">Зарегистрироваться!</a>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap JS -->
 <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
