@@ -12,8 +12,15 @@ services:
       MYSQL_DATABASE: users
     volumes:
       - users_data:/var/lib/mysql
+      - ./db_init:/docker-entrypoint-initdb.d
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin"]
+      timeout: 20s
+      retries: 10
+      start_period: 10s
+      interval: 5s
 
   # Сервис для базы данных железнодорожных данных
   railway-db:
@@ -24,8 +31,15 @@ services:
       MYSQL_DATABASE: railway_station
     volumes:
       - railway_data:/var/lib/mysql
+      - ./db_init:/docker-entrypoint-initdb.d
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin"]
+      timeout: 20s
+      retries: 10
+      start_period: 10s
+      interval: 5s
 
   app:
     build: .
@@ -35,14 +49,17 @@ services:
     networks:
       - app-network
     depends_on:
-      - users-db
-      - railway-db
-    # restart: on-failure # Перезапускать, если контейнер завершился с ненулевым кодом выхода
+      users-db:
+        condition: service_healthy
+      railway-db:
+        condition: service_healthy
+    restart: on-failure
 
 networks:
   app-network:
     driver: bridge
 
+# Определение именованных томов
 volumes:
   users_data:
   railway_data:
